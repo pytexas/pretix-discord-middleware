@@ -28,13 +28,16 @@ def parse_pretix_order(data: dict[str, Any]) -> PretixOrder:  # Any: raw JSON in
     if "code" not in data:
         raise ValueError("Missing required field: code")
 
-    event_data = data.get("event", {})
-    event_name_data = event_data.get("name", {})
-    event_name = (
-        event_name_data.get("en", "Unknown Event")
-        if isinstance(event_name_data, dict)
-        else str(event_name_data)
-    )
+    event_data = data.get("event", "Unknown Event")
+    if isinstance(event_data, dict):
+        event_name_data = event_data.get("name", {})
+        event_name = (
+            event_name_data.get("en", "Unknown Event")
+            if isinstance(event_name_data, dict)
+            else str(event_name_data)
+        )
+    else:
+        event_name = str(event_data)
 
     raw_total = data["total"]
     total = f"${raw_total}"

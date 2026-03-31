@@ -22,6 +22,8 @@ class PretixWebhookWorkflow:
 
     @workflow.run
     async def run(self, inp: WebhookInput) -> None:
+        workflow.logger.info("Processing order %s for event %s", inp.code, inp.event)
+
         order = await workflow.execute_activity(
             fetch_pretix_order,
             FetchOrderInput(
@@ -36,6 +38,8 @@ class PretixWebhookWorkflow:
 
         await workflow.execute_activity(
             send_discord_webhook,
-            SendWebhookInput(payload=payload),
+            SendWebhookInput(payload=payload, order_code=inp.code),
             start_to_close_timeout=timedelta(seconds=30),
         )
+
+        workflow.logger.info("Order %s successfully posted to Discord", inp.code)

@@ -54,6 +54,15 @@ pretix --POST--> FastAPI (api.py) --starts workflow--> Temporal
 - Worker entrypoint: `python -m pretix_discord.worker`
 - Web entrypoint: `python -m pretix_discord.main`
 
+### Pretix API shape
+
+The pretix order response does **not** include item names on positions — `item` and `variation` are numeric IDs. `fetch_pretix_order` makes two concurrent requests: one for the order, one for the event's `/items/` catalog. `_build_item_lookups()` converts the items response into `{id: name}` dicts that `parse_pretix_order()` uses for display.
+
 ### Deployment
 
 Docker Compose with four services: Caddy (HTTPS), Temporal CLI dev server (SQLite), worker, web. Configuration via environment variables (see `.env.example`).
+
+- `uv.lock` is committed — required for reproducible Docker builds.
+- The `caddy` service must have `env_file: .env` so `$DOMAIN` expands correctly in the Caddyfile.
+- Temporal ports (`7233`, `8233`) are bound to `127.0.0.1` only — not publicly exposed.
+- The Temporal SQLite volume mount requires world-writable permissions (`chmod 777`) on the host data directory.

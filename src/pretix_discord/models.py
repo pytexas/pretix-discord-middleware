@@ -88,6 +88,7 @@ class SendWebhookInput:
     """Input for the send_discord_webhook activity."""
 
     payload: DiscordPayload
+    order_code: str
 
 
 @dataclass(frozen=True)

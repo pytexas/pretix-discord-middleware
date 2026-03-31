@@ -59,6 +59,7 @@ async def send_discord_webhook(inp: SendWebhookInput) -> None:
         httpx.HTTPStatusError: If Discord returns a non-2xx response.
     """
     config = load_config()
+    activity.logger.info("Sending Discord webhook for order %s", inp.order_code)
 
     async with httpx.AsyncClient() as client:
         response = await client.post(
@@ -66,3 +67,9 @@ async def send_discord_webhook(inp: SendWebhookInput) -> None:
             json=inp.payload.to_dict(),
         )
         response.raise_for_status()
+
+    activity.logger.info(
+        "Discord webhook sent successfully for order %s (HTTP %s)",
+        inp.order_code,
+        response.status_code,
+    )

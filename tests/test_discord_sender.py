@@ -58,7 +58,7 @@ class TestSendDiscordWebhook:
         )
 
         with patch.dict(os.environ, ENV, clear=True):
-            await send_discord_webhook(SendWebhookInput(payload=payload))
+            await send_discord_webhook(SendWebhookInput(payload=payload, order_code="T0AF2"))
 
         assert route.called
         request = route.calls[0].request
@@ -78,7 +78,7 @@ class TestSendDiscordWebhook:
         )
 
         with patch.dict(os.environ, ENV, clear=True):
-            await send_discord_webhook(SendWebhookInput(payload=payload))
+            await send_discord_webhook(SendWebhookInput(payload=payload, order_code="T0AF2"))
 
         request = route.calls[0].request
         assert "application/json" in request.headers["content-type"]
@@ -92,7 +92,7 @@ class TestSendDiscordWebhook:
 
         with patch.dict(os.environ, ENV, clear=True):
             with pytest.raises(httpx.HTTPStatusError):
-                await send_discord_webhook(SendWebhookInput(payload=payload))
+                await send_discord_webhook(SendWebhookInput(payload=payload, order_code="T0AF2"))
 
     @respx.mock
     async def test_succeeds_on_204_no_content(self) -> None:
@@ -103,4 +103,4 @@ class TestSendDiscordWebhook:
 
         with patch.dict(os.environ, ENV, clear=True):
             # Should not raise
-            await send_discord_webhook(SendWebhookInput(payload=payload))
+            await send_discord_webhook(SendWebhookInput(payload=payload, order_code="T0AF2"))

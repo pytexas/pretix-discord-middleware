@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 
 from temporalio.client import Client
 from temporalio.worker import Worker
@@ -12,6 +13,12 @@ from pretix_discord.config import load_config
 from pretix_discord.discord_activities import send_discord_webhook
 from pretix_discord.pretix_activities import fetch_pretix_order
 from pretix_discord.workflow import PretixWebhookWorkflow
+
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+)
 
 
 async def main() -> None:

@@ -14,7 +14,9 @@ services:
     restart: unless-stopped
 
   temporal:
-    image: temporalio/temporal:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.temporal
     command: server start-dev --ip 0.0.0.0 --db-filename /data/temporal.db
     ports:
       - "127.0.0.1:7233:7233"

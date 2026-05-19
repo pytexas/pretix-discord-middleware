@@ -1,6 +1,12 @@
+# The `caddy` and `temporal` services are gated behind the `standalone` profile so this
+# compose file is fully self-contained for local development (`docker compose --profile
+# standalone up`) but in shared deployments the substrate is provided externally and
+# only `worker` and `web` start (`docker compose up`).
+
 services:
   caddy:
     image: caddy:2
+    profiles: ["standalone"]
     ports:
       - "80:80"
       - "443:443"
@@ -17,6 +23,7 @@ services:
     build:
       context: .
       dockerfile: temporal.Dockerfile
+    profiles: ["standalone"]
     env_file: .env
     command:
       - --tailscale-hostname=${TS_HOSTNAME:-temporal-dev}
@@ -30,14 +37,17 @@ services:
       - temporal_tsstate:/var/lib/tailscale
     restart: unless-stopped
 
+  # NB: no depends_on temporal -- in shared deployments temporal lives in another compose
+  # project, and the Temporal Python client retries on connect anyway, so explicit
+  # depends_on adds no value and would interact awkwardly with profile-gated services.
   worker:
     build: .
     command: python -m pretix_discord.worker
     env_file: .env
     environment:
-      TEMPORAL_ADDRESS: temporal:7233
-    depends_on:
-      - temporal
+      TEMPORAL_ADDRESS: ${TEMPORAL_ADDRESS:-temporal:7233}
+      # Real-time docker logs (Python defaults to 8KB stdout buffering).
+      PYTHONUNBUFFERED: "1"
     restart: unless-stopped
 
   web:
@@ -47,9 +57,8 @@ services:
       - "8000"
     env_file: .env
     environment:
-      TEMPORAL_ADDRESS: temporal:7233
-    depends_on:
-      - temporal
+      TEMPORAL_ADDRESS: ${TEMPORAL_ADDRESS:-temporal:7233}
+      PYTHONUNBUFFERED: "1"
     restart: unless-stopped
 
 volumes:

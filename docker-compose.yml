@@ -16,13 +16,23 @@ services:
   temporal:
     build:
       context: .
+<<<<<<< HEAD
       dockerfile: Dockerfile.temporal
     command: server start-dev --ip 0.0.0.0 --db-filename /data/temporal.db
+=======
+      dockerfile: temporal.Dockerfile
+    env_file: .env
+    command:
+      - --tailscale-hostname=${TS_HOSTNAME:-temporal-dev}
+      - --ip=0.0.0.0
+      - --db-filename=/data/temporal.db
+>>>>>>> tailscale
     ports:
       - "127.0.0.1:7233:7233"
       - "127.0.0.1:8233:8233"
     volumes:
       - temporal_data:/data
+      - temporal_tsstate:/var/lib/tailscale
     restart: unless-stopped
 
   worker:
@@ -51,3 +61,4 @@ volumes:
   caddy_data:
   caddy_config:
   temporal_data:
+  temporal_tsstate:
